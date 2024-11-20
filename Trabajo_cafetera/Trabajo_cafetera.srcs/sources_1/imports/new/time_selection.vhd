@@ -25,14 +25,18 @@ begin
         		-- Check asynchronous inputs
                 -- Check clock edge
             count_i <= (others => '0');
-    	elsif rising_edge(CLK) and SUM = '1' then --Check kclock active edge = CLK_N event and CLK_N = 0
-       		count_i <= count_i + 1;
-            if count_i = 61 then
-                count_i <= "111100";
+    	elsif rising_edge(CLK) then
+    	   if  SUM = '1' then --Check kclock active edge = CLK_N event and CLK_N = 0
+                if count_i < 61 then
+                    count_i <= count_i + 1;
+                end if;
             end if;
-        elsif rising_edge(CLK) and LESS = '1' then
-            if count_i > 3 then
-       		   count_i <= count_i -1;
+        elsif rising_edge(CLK) then
+            if LESS = '1' then
+                if count_i > 3 then
+       		       count_i <= count_i -1;
+       		    end if;
+       		end if;
         end if;
    end process;
    code <= std_logic_vector(count_i);

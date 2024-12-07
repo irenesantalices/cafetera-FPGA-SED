@@ -1,0 +1,70 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity cafetera_tb is
+end entity;
+
+architecture testbench of cafetera_tb is
+    component cafetera is
+        port (
+            corto      : in std_logic;  -- Botón café corto
+            largo      : in std_logic;  -- Botón café largo
+            encendido  : in std_logic;  -- Botón encendido
+            leche      : in std_logic;  -- Botón leche (opcional)
+            bomba      : out std_logic  -- Activación de la bomba
+        );
+    end component;
+
+    signal corto     : std_logic := '0';
+    signal largo     : std_logic := '0';
+    signal encendido : std_logic := '0';
+    signal leche     : std_logic := '0';
+    signal bomba     : std_logic;
+
+    constant clk_period : time := 10 ns;
+    constant corto_time : time := 10 sec;
+    constant largo_time : time := 20 sec;
+
+begin
+    uut: cafetera
+        port map (
+            corto     => corto,
+            largo     => largo,
+            encendido => encendido,
+            leche     => leche,
+            bomba     => bomba
+        );
+
+    stimulus: process
+    begin
+        -- Encender la cafetera
+        encendido <= '1';
+        wait for 20 ns;
+
+        -- Probar café corto
+        corto <= '1';
+        wait for corto_time;  -- Esperar el tiempo configurado para café corto
+        corto <= '0';
+        wait for 20 ns;
+
+        -- Probar café largo
+        largo <= '1';
+        wait for largo_time;  -- Esperar el tiempo configurado para café largo
+        largo <= '0';
+        wait for 20 ns;
+
+        -- Probar funcionalidad del depósito de leche
+        leche <= '1';
+        wait for 5 sec;
+        leche <= '0';
+
+        -- Apagar la cafetera
+        encendido <= '0';
+        wait for 20 ns;
+
+        -- Finalizar simulación
+        wait;
+    end process;
+
+end architecture;

@@ -1,7 +1,7 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity Control_Botones is
+entity Maquina_estados is
 generic(
         tiempo:positive:=6;
         tiempo_corto : std_logic_vector(5 downto 0) := "000011";
@@ -23,9 +23,9 @@ generic(
         tiempo_leche         : out STD_LOGIC_VECTOR(tiempo-1 downto 0)
 
     );
-end Control_Botones;
+end Maquina_estados;
 
-architecture Behavioral of Control_Botones is
+architecture Behavioral of Maquina_estados is
 type STATES is (Apagada,Seleccion_tipo_cafe, cafe_leche, cafe_solo,cafe_terminado);
 signal current_state: STATES := Apagada;
 signal next_state: STATES;
@@ -56,7 +56,6 @@ Inst_time_selection: time_selection
         LESS => LESS,
         code =>tiempo_personalizado
     );
-begin
 
 nextstate_decod: process (boton_encendido, current_state)
  begin

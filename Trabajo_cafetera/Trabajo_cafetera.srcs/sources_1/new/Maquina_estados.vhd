@@ -3,6 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity Maquina_estados is
 generic(
+        width : positive:=3;
         tiempo:positive:=6;
         tiempo_corto : std_logic_vector(5 downto 0) := "000011";
         tiempo_largo : std_logic_vector(5 downto 0) := "111100"
@@ -63,6 +64,8 @@ nextstate_decod: process (boton_encendido, current_state)
  case current_state is
  when Apagada =>
     cafetera_on <= '0';
+    tiempo_cafe<=(others=>'0');
+    tiempo_leche<=(others=>'0');
     if boton_encendido = '1' then
         next_state <= Seleccion_tipo_cafe;
     end if;
@@ -84,6 +87,7 @@ nextstate_decod: process (boton_encendido, current_state)
         INICIO <= '1';
         tiempo_leche <= tiempo_personalizado;
         INICIO <= '0';
+
     elsif boton_corto = '1' then
         tiempo_leche <= tiempo_corto;
     elsif boton_largo = '1' then

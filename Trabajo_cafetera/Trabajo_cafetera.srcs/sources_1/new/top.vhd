@@ -1,43 +1,45 @@
-----------------------------------------------------------------------------------
--- Company: 
--- Engineer: 
--- 
--- Create Date: 18.11.2024 17:12:45
--- Design Name: 
--- Module Name: top - Behavioral
--- Project Name: 
--- Target Devices: 
--- Tool Versions: 
--- Description: 
--- 
--- Dependencies: 
--- 
--- Revision:
--- Revision 0.01 - File Created
--- Additional Comments:
--- 
-----------------------------------------------------------------------------------
 
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
--- Uncomment the following library declaration if using
--- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
-
--- Uncomment the following library declaration if instantiating
--- any Xilinx leaf cells in this code.
---library UNISIM;
---use UNISIM.VComponents.all;
 
 entity top is
---  Port ( );
+generic(
+        tiempo:positive:=6;
+        width:positive:=3
+        );
 end top;
 
 architecture Behavioral of top is
+signal CLK         : STD_LOGIC;
+signal display1 : std_logic_vector(width downto 0);
+signal display2 : std_logic_vector(width downto 0);
+signal tiempo_temporizador : std_logic_vector(tiempo-1 downto 0);
+signal Habilitar_T : std_logic;
+signal Start : std_logic;
+signal Pause : std_logic;
 
+COMPONENT temporizador
+       PORT (
+        CLK : in std_logic;
+        tiempo_in : in std_logic_vector(tiempo-1 downto 0);
+        display1 : out std_logic_vector(width downto 0);
+        display2 : out std_logic_vector(width downto 0);
+        Habilitar_T : in std_logic;
+        Start : in std_logic;
+        Pause : in std_logic
+            );
+    END COMPONENT;
 begin
-
-
+Inst_temporizador: temporizador 
+    PORT MAP (
+        CLK => CLK,
+        tiempo_in=>tiempo_temporizador,
+        display1 => display1,
+        display2 => display2,
+        Habilitar_T => Habilitar_T,
+        Start => Start,
+        Pause => Pause
+    );
 end Behavioral;

@@ -11,11 +11,14 @@ generic(
     Port (
         CLK : in std_logic;
         tiempo_in : in std_logic_vector(tiempo-1 downto 0);
+        cafe : in std_logic;
+        Habilitar_T : in std_logic_vector(1 downto 0);
+        Pause : in std_logic;
         display1 : out std_logic_vector(width downto 0);
         display2 : out std_logic_vector(width downto 0);
         final_tiempo : out std_logic;
-        Habilitar_T : in std_logic;
-        Pause : in std_logic
+        cafe_terminado : out std_logic
+        
      );
 end Temporizador;
 
@@ -39,10 +42,15 @@ Inst_clk1hz: clk1hz
     
     ME : process (Habilitar_T,Pause)
     begin
-        if Habilitar_T = '1'  and Pause = '0'then
-            Start_i<='1';
+        if Habilitar_T = "01" and cafe = '0' then
+            Start_i<='0';
+        elsif Habilitar_T="01" and tiempo_in ="000000" then
+            Start_i<='0';
         elsif Pause='1' then
             Start_i<='0';
+        elsif Habilitar_T = "01" or Habilitar_T="10"  then
+            Start_i<='1';
+        
         end if;
     end process;
     
@@ -64,6 +72,7 @@ Inst_clk1hz: clk1hz
             if unit_sec=0 and dec_sec=0 then
                 final <='1';
             elsif unit_sec=0 then
+                final<='0';
                 unit_sec:=9;
                 if dec_sec=0 then
                     dec_sec:=5;
@@ -72,6 +81,7 @@ Inst_clk1hz: clk1hz
                     dec_sec:=dec_sec-1;
                 end if;
             else 
+                final<='0';
                 unit_sec:=unit_sec-1;
             end if;
         end if;
@@ -79,6 +89,7 @@ Inst_clk1hz: clk1hz
         display1 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
         display2 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
         final_tiempo<=final;
+        cafe_terminado<=final;
     end process;
 
 end Behavioral;

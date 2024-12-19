@@ -18,6 +18,7 @@ generic(
     boton_no : in std_logic;
     boton_encendido : in std_logic;
     RST : in std_logic;
+    led_fin_tiempo :out std_logic;
     display1 : out std_logic_vector(width downto 0);
     display2 : out std_logic_vector(width downto 0);
     display3 : out std_logic_vector(width downto 0);
@@ -29,7 +30,7 @@ end top;
 architecture Behavioral of top is
 
 signal tiempo_temporizador : std_logic_vector(tiempo-1 downto 0);
-signal Habilitar_T : std_logic;
+signal cafe_listo : std_logic;
 signal Start : std_logic;
 signal modo_cafe : std_logic_vector(1 downto 0);
 signal tiempo_c : std_logic_vector(tiempo-1 downto 0);
@@ -40,10 +41,13 @@ signal Pause : std_logic;
 COMPONENT temporizador
        PORT (
         CLK : in std_logic;
+        cafe : in std_logic;
         tiempo_in : in std_logic_vector(tiempo-1 downto 0);
         display1 : out std_logic_vector(width downto 0);
         display2 : out std_logic_vector(width downto 0);
         Habilitar_T : in std_logic_vector(1 downto 0);
+        final_tiempo : out std_logic;
+        cafe_terminado : out std_logic;
         Pause : in std_logic
             );
     END COMPONENT;
@@ -76,20 +80,25 @@ begin
 Inst_temporizador_leche: temporizador 
     PORT MAP (
         CLK => CLK,
+        cafe=>cafe_listo,
         tiempo_in=>tiempo_l,
         display1 => display1,
         display2 => display2,
         Habilitar_T => modo_cafe,
+        final_tiempo=>led_fin_tiempo,
         Pause => RST
     );
     Inst_temporizador_cafe: temporizador 
     PORT MAP (
         CLK => CLK,
+        cafe =>'1',
         tiempo_in=>tiempo_c,
         display1 => display1,
         display2 => display2,
-        Habilitar_T => modo_cafe, -- Esto hay que cambiarlo
-        Pause => RST
+        Habilitar_T => modo_cafe, 
+        final_tiempo=>led_fin_tiempo,
+        Pause => RST,
+        cafe_terminado=>cafe_listo
     );
    Inst_display_pregunta: Display_pregunta 
     PORT MAP (

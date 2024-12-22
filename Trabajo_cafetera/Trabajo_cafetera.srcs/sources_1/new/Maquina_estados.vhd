@@ -44,7 +44,7 @@ signal tiempo_personalizado : STD_LOGIC_VECTOR(tiempo-1 downto 0);
             CLK	    : in std_logic;									-- Clock
             SUM     : in std_logic;                                 -- Aumenta el valor del tiempo en uno
             LESS    : in std_logic;                                 -- Disminuye el valor del tiempo en uno
-            code	: out std_logic_vector( tiempo downto 0)
+            code	: out std_logic_vector( tiempo-1 downto 0)
             );
     END COMPONENT;
 begin

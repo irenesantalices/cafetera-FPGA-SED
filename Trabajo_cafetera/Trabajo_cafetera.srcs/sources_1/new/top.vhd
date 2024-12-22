@@ -7,7 +7,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity top is
 generic(
         tiempo:positive:=6;
-        width:positive:=3
+        width:positive:=6
         );
  Port(
     CLK      : in  STD_LOGIC;
@@ -71,7 +71,7 @@ COMPONENT Maquina_estados
         boton_encendido     : in  STD_LOGIC;    -- Señal para encender/apagar la cafetera
         clk                 : in  STD_LOGIC;    -- Señal de reloj
         reset               : in  STD_LOGIC;    -- Señal de reinicio
-        modo_cafe           : out STD_LOGIC_VECTOR(1 downto 0); -- Modo: 00 = apagado, 01 = eligiendo, 10 = solo, 11 = con leche
+        modo_cafe           : out STD_LOGIC_VECTOR(1 downto 0); -- Modo: 00 = apagado, 01 = eligiendo, 10 = elegir tiempo, 11 = temporizador
         tiempo_cafe         : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
         tiempo_leche        : out STD_LOGIC_VECTOR(tiempo-1 downto 0)
             );

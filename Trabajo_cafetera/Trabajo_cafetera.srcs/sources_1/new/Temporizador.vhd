@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 
 entity Temporizador is
 generic(
-        width:positive:=2;
+        width:positive:=6;
         tiempo:positive:=6
         );
     Port (
@@ -42,13 +42,13 @@ Inst_clk1hz: clk1hz
     
     ME : process (Habilitar_T,Pause)
     begin
-        if Habilitar_T = "01" and cafe = '0' then
+        if Habilitar_T = "10" and cafe = '0' then
             Start_i<='0';
-        elsif Habilitar_T="01" and tiempo_in ="000000" then
+        elsif Habilitar_T="10" and tiempo_in ="000000" then
             Start_i<='0';
         elsif Pause='1' then
             Start_i<='0';
-        elsif Habilitar_T = "01" or Habilitar_T="10"  then
+        elsif Habilitar_T = "11" or Habilitar_T="10"  then
             Start_i<='1';
         
         end if;

@@ -35,6 +35,8 @@ signal Start : std_logic;
 signal modo_cafe : std_logic_vector(1 downto 0);
 signal tiempo_c : std_logic_vector(tiempo-1 downto 0);
 signal tiempo_l : std_logic_vector(tiempo-1 downto 0);
+signal s_display1 : std_logic_vector(width downto 0);
+signal s_display2 : std_logic_vector(width downto 0);
 
 signal Pause : std_logic;
 
@@ -82,8 +84,8 @@ Inst_temporizador_leche: temporizador
         CLK => CLK,
         cafe=>cafe_listo,
         tiempo_in=>tiempo_l,
-        display1 => display1,
-        display2 => display2,
+        display1 => s_display1,
+        display2 => s_display2,
         Habilitar_T => modo_cafe,
         final_tiempo=>led_fin_tiempo,
         Pause => RST
@@ -93,8 +95,8 @@ Inst_temporizador_leche: temporizador
         CLK => CLK,
         cafe =>'1',
         tiempo_in=>tiempo_c,
-        display1 => display1,
-        display2 => display2,
+        display1 => s_display1,
+        display2 => s_display2,
         Habilitar_T => modo_cafe, 
         final_tiempo=>led_fin_tiempo,
         Pause => RST,
@@ -103,8 +105,8 @@ Inst_temporizador_leche: temporizador
    Inst_display_pregunta: Display_pregunta 
     PORT MAP (
         estado =>modo_cafe,
-        display1 =>display1,
-        display2 =>display2,
+        display1 =>s_display1,
+        display2 =>s_display2,
         display3 =>display3,
         display4 =>display4,
         display5 =>display5
@@ -123,4 +125,6 @@ Inst_estados: Maquina_estados
         tiempo_cafe => tiempo_c,
         tiempo_leche =>tiempo_l
     );
+    display1<=s_display1;
+    display2<=s_display2;
 end Behavioral;

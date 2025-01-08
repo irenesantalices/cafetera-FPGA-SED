@@ -42,9 +42,13 @@ Inst_clk1hz: clk1hz
     
     ME : process (Habilitar_T,Pause)
     begin
-        if Habilitar_T = "10" and cafe = '0' then
+        if Habilitar_t = "00" then
+            final_tiempo<='0';
+            cafe_terminado<='0';
             Start_i<='0';
-        elsif Habilitar_T="10" and tiempo_in ="000000" then
+        elsif Habilitar_T = "10" and cafe = '0' then --Si es el modo cafe solo y no es temporixador de cafe
+            Start_i<='0';
+        elsif Habilitar_T="10" and tiempo_in ="000000" then 
             Start_i<='0';
         elsif Pause='1' then
             Start_i<='0';
@@ -52,6 +56,7 @@ Inst_clk1hz: clk1hz
             Start_i<='1';
         
         end if;
+        
     end process;
     
     process (clk_1hz, Start_i)
@@ -61,13 +66,6 @@ Inst_clk1hz: clk1hz
     variable dec_sec  : V :=int mod 10;
     begin
         
---        if Reset_i='1' then --Reset prioritario
---            unit_sec:=0;
---            dec_sec:=0;
---            unit_min:=1;
---            dec_min:=0;
-
---        els
     if rising_edge(clk_1hz) and Start_i='1' then
             if unit_sec=0 and dec_sec=0 then
                 final <='1';
@@ -88,8 +86,12 @@ Inst_clk1hz: clk1hz
         
         display1 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
         display2 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
+        if (Habilitar_T="10" and cafe='1')or(Habilitar_T="11" and cafe='0') then
         final_tiempo<=final;
+        end if;        
+        if cafe='1' then
         cafe_terminado<=final;
+        end if;
     end process;
 
 end Behavioral;

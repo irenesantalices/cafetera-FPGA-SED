@@ -9,15 +9,14 @@ generic(
         tiempo:positive:=6
         );
     Port (
+        start : in std_logic;
         CLK : in std_logic;
         tiempo_in : in std_logic_vector(tiempo-1 downto 0);
-        cafe : in std_logic;
         Habilitar_T : in std_logic_vector(1 downto 0);
         Pause : in std_logic;
         display1 : out std_logic_vector(width downto 0);
         display2 : out std_logic_vector(width downto 0);
-        final_tiempo : out std_logic;
-        cafe_terminado_negado : out std_logic
+        final_tiempo : out std_logic
         
      );
 end Temporizador;
@@ -42,17 +41,12 @@ Inst_clk1hz: clk1hz
     
     ME : process (Habilitar_T,Pause)
     begin
-        if Habilitar_t = "00" then
-            final_tiempo<='0';
-            cafe_terminado_negado<='0';
+        if Habilitar_t = "00"  then
             Start_i<='0';
-        elsif Habilitar_T = "10" and cafe = '0' then --Si es el modo cafe solo y no es temporixador de cafe
-            Start_i<='0';
-        elsif Habilitar_T="10" and tiempo_in ="000000" then 
-            Start_i<='0';
+
         elsif Pause='1' then
             Start_i<='0';
-        elsif Habilitar_T = "11" or Habilitar_T="10"  then
+        elsif (Habilitar_T = "11" or Habilitar_T="10")and start = '1'  then
             Start_i<='1';
         
         end if;
@@ -88,11 +82,8 @@ Inst_clk1hz: clk1hz
         
         display1 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
         display2 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
-        if (Habilitar_T="10" and cafe='1')or(Habilitar_T="11" and cafe='0') then
-        final_tiempo<=final;
-        end if;        
-        if cafe='1' then
-        cafe_terminado_negado<=not final;
+        if Habilitar_T="10" or Habilitar_T="11" then
+            final_tiempo<=final;
         end if;
     end process;
 

@@ -14,7 +14,7 @@ generic(
         boton_corto         : in  STD_LOGIC;    -- Señal del botón para café corto
         boton_largo         : in  STD_LOGIC;    -- Señal del botón para café largo
         boton_personalizar  : in  STD_LOGIC;    -- Señal pdel botón para personalizar tiempo
-        boton_confirmar     : in  STD_LOGIC;    -- Señal para confirmar (debe ser un boton)
+        --boton_confirmar     : in  STD_LOGIC;    -- Señal para confirmar (debe ser un boton)
         boton_no            : in  STD_LOGIC;    -- Señal para decir que no (debe ser un boton)
         boton_encendido     : in  STD_LOGIC;    -- Señal para encender/apagar la cafetera
         clk                 : in  STD_LOGIC;    -- Señal de reloj
@@ -25,6 +25,7 @@ generic(
        -- tiempo_leche        : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
         elegido_tiempo      : out STD_LOGIC;
         leds                : out std_logic_vector(2 downto 0);
+        start_count : buffer std_logic;
         display1 : out std_logic_vector(6 downto 0);	
         display2 : out std_logic_vector(6 downto 0)
         
@@ -33,11 +34,11 @@ generic(
 end Maquina_estados;
 
 architecture Behavioral of Maquina_estados is
-type STATES is (Apagada,Seleccion_tipo_cafe, cafe_leche, cafe_solo,cafe_terminado);
+type STATES is (Apagada,Seleccion_tipo_cafe, cafe_leche, cafe_solo);
 signal current_state: STATES := Apagada;
-signal next_state: STATES;
-signal cafetera : STD_LOGIC_VECTOR(1 downto 0) := "00"; -- Estado interno de la cafetera
-signal modo_actual : STD_LOGIC_VECTOR (1 DOWNTO 0); -- Modo actual: 00, 01 o 10
+--signal next_state: STATES;
+--signal cafetera : STD_LOGIC_VECTOR(1 downto 0) := "00"; -- Estado interno de la cafetera
+--signal modo_actual : STD_LOGIC_VECTOR (1 DOWNTO 0); -- Modo actual: 00, 01 o 10
 signal LESS        : STD_LOGIC;
 signal SUM         : STD_LOGIC;
 signal INICIO      : STD_LOGIC;
@@ -70,92 +71,105 @@ Inst_time_selection: time_selection
         display2=>display2
     );
 
-nextstate_decod: process (boton_encendido, current_state)
+nextstate_decod: process (boton_encendido, current_state,clk)
  begin
  if boton_personalizar='1' then
     personalizar<='1';
  end if;
- next_state <= current_state;
+-- current_state <= next_state;
  case current_state is
  when Apagada =>
-    cafetera <= "00";
+    modo_cafe <= "00";
     leds<="001";
     tiempo_cafe<=(others=>'0');
    -- tiempo_leche<=(others=>'0');
     if boton_encendido = '1' then
-        next_state <= cafe_solo;
+        current_state <= cafe_solo;
     end if;
- when Seleccion_tipo_cafe =>
-    leds<="011";
-    cafetera <= "01";
-    if boton_encendido = '0' then
-        next_state <= Apagada;
-    else
-        --Se activa el display con leche
-        
-        if boton_confirmar = '1' then
-            next_state <= cafe_leche;
-        elsif boton_no = '1' then
-            next_state <= Apagada;
-        end if;
-    end if;
- when cafe_leche =>
-    leds<="100";
-        cafetera <= "11";
- if boton_encendido = '0' then
-        next_state <= Apagada;
- else 
-    if tiempo_elegido='0' then
-    if boton_personalizar = '1' then
-        INICIO <= '1';
-       -- tiempo_leche <= tiempo_personalizado;
-       tiempo_cafe <= tiempo_personalizado;
-        INICIO <= '0';
-
-    elsif boton_corto = '1' then
-       -- tiempo_leche <= tiempo_corto;
-       tiempo_cafe <= tiempo_corto;
-
-    elsif boton_largo = '1' then
-       -- tiempo_leche <= tiempo_largo;
-       tiempo_cafe <= tiempo_largo;
-    end if;
-    end if;
- end if;
- if tiempo_acabado='1'then
- next_state<=Apagada;
- end if;
- when cafe_solo =>
+    when cafe_solo =>
     leds<="010";
-    cafetera <="10";
+    modo_cafe <="10";
     if boton_encendido = '0' then
-        next_state <= Apagada;
+        current_state <= Apagada;
     else
     if tiempo_elegido='0' then
         --tiempo_leche <= (others=>'0');
         if personalizar = '1' then
             INICIO <= '1';
-            if boton_confirmar = '1' then 
-            tiempo_cafe <= tiempo_personalizado;
-            personalizar<='0';
-            tiempo_elegido<='1';
+            --if boton_confirmar = '1' then
+            if boton_personalizar = '1' then 
+                tiempo_cafe <= tiempo_personalizado;
+                personalizar<='0';
+                tiempo_elegido<='1';
             end if;
             INICIO <= '0';
         elsif boton_corto = '1' then
             tiempo_cafe <= tiempo_corto;
+            tiempo_elegido<='1';
+
         elsif boton_largo = '1' then
             tiempo_cafe <= tiempo_largo;
+            elegido_tiempo<='1';
          end if;
          end if;
     end if;
     -- Hay que arreglar que pueda saltar antes de que termine el tiempo
     if  tiempo_acabado='1' then
-    next_state<=Seleccion_tipo_cafe;
+    current_state<=Seleccion_tipo_cafe;
     end if;
+ when Seleccion_tipo_cafe =>
+    leds<="011";
+    modo_cafe <= "01";
+    if boton_encendido = '0' then
+        current_state <= Apagada;
+    else
+        --Se activa el display con leche
+        
+        --if boton_confirmar = '1' then
+        if boton_personalizar = '1' then
+            current_state <= cafe_leche;
+        elsif boton_no = '1' then
+            current_state <= Apagada;
+        end if;
+    end if;
+ when cafe_leche =>
+    leds<="100";
+        modo_cafe <= "11";
+ if boton_encendido = '0' then
+        current_state <= Apagada;
+ else 
+    if tiempo_elegido='0' then
+    if personalizar = '1' then
+        INICIO <= '1';
+       -- tiempo_leche <= tiempo_personalizado;
+        --if boton_confirmar = '1' then 
+        if boton_personalizar = '1' then 
+            tiempo_cafe <= tiempo_personalizado;
+            personalizar<='0';
+            tiempo_elegido<='1'; 
+        end if;      
+        INICIO <= '0';
+
+    elsif boton_corto = '1' then
+       -- tiempo_leche <= tiempo_corto;
+       tiempo_cafe <= tiempo_corto;
+       tiempo_elegido<='1';
+
+    elsif boton_largo = '1' then
+       -- tiempo_leche <= tiempo_largo;
+       tiempo_elegido<='1';
+       tiempo_cafe <= tiempo_largo;
+    end if;
+    end if;
+ end if;
+ if tiempo_acabado='1'then
+ current_state<=Apagada;
+ end if;
+ 
  when others =>
- next_state <= Apagada;
+ current_state <= Apagada;
  end case;
-modo_cafe <=cafetera;
+--modo_cafe <=cafetera;
 elegido_tiempo<=tiempo_elegido;
  end process;
  

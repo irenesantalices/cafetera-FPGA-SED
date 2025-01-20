@@ -9,7 +9,6 @@ generic(
         );
   Port ( 
     in_clk : in std_logic;
-    cafe : in std_logic;
     in_display1_cafe : in std_logic_vector(width downto 0);
     in_display2_cafe : in std_logic_vector(width downto 0);
     tiempo_elegido   : in std_logic;
@@ -44,7 +43,10 @@ process (estado,clk)
 begin
 
 if rising_edge(clk) then
-    if estado = "01" then
+    if estado= "00" then
+        digctrl<="11111111";
+    
+    elsif estado = "01" then
         estado_display<=next_estado;
         case estado_display is
         when "000" =>
@@ -72,6 +74,7 @@ if rising_edge(clk) then
         next_estado<="000";
         end case;
     elsif tiempo_elegido='0' then
+    estado_display<=next_estado;
     case estado_display is
         when "000" =>
         digctrl<="01111111";
@@ -87,6 +90,7 @@ if rising_edge(clk) then
         
      elsif (estado="10"or estado="11") --and cafe='1' 
      then
+        estado_display<=next_estado;
        case estado_display is
         when "000" =>
         digctrl<="01111111";

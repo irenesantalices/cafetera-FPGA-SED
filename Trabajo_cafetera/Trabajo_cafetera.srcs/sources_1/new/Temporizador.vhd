@@ -16,6 +16,7 @@ generic(
         Pause : in std_logic;
         display1 : out std_logic_vector(width downto 0);
         display2 : out std_logic_vector(width downto 0);
+        
         final_tiempo : out std_logic
         
      );
@@ -41,45 +42,45 @@ Inst_clk1hz: clk1hz
     
     ME : process (Habilitar_T,Pause)
     begin
-        if Habilitar_t = "00"  then
-            Start_i<='0';
+--        if Habilitar_t = "00"  then
+--            Start_i<='0';
 
-        elsif Pause='1' then
+       -- els
+        if Pause='1' then
             Start_i<='0';
-        elsif (Habilitar_T = "11" or Habilitar_T="10")and start = '1'  then
+        elsif -- (Habilitar_T = "11" or Habilitar_T="10")and 
+        start = '1'  then
             Start_i<='1';
         
         end if;
         
     end process;
     
-    process (clk_1hz, Start_i)
+    process (clk, start)
     subtype V is integer range 0 to 60;
     variable int : V :=to_integer(unsigned(tiempo_in));
     variable unit_sec : V :=int/10;
     variable dec_sec  : V :=int mod 10;
     begin
-    if Habilitar_t = "00" then
+    if Habilitar_t = "00" or Habilitar_T = "01" or start ='0' then
         final_tiempo<='0';
     end if;
-    if rising_edge(clk_1hz) and Start_i='1' then
+    if rising_edge(clk) and start='1' then
             if unit_sec=0 and dec_sec=0 then
-                final <='1';
+                final_tiempo <='1';
             elsif unit_sec=0 then
-                final<='0';
+                final_tiempo<='0';
                 unit_sec:=9;
                 dec_sec:=dec_sec-1;
             else 
-                final<='0';
+                final_tiempo<='0';
                 unit_sec:=unit_sec-1;
             end if;
         end if;
         
-        display2 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
-        display1 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
-        if Habilitar_T="10" or Habilitar_T="11" then
-            final_tiempo<=final;
-        end if;
+        display1 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
+        display2 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
     end process;
 
 end Behavioral;
+

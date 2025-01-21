@@ -51,24 +51,24 @@ if rising_edge(clk) then
         case estado_display is
         when "000" =>
         digctrl<="01111111";
-        display <="0111000";
+        display <=not("0111000");
         next_estado<="001";
         --hay que hacer el convertido de frecuencia
         when "001" =>
         digctrl<="10111111";
-        display <="1111001";
+        display <=not("1111001");
         next_estado<="010";
         when "010" =>
         digctrl<="11011111";
-        display <="0111101";
+        display <=not("0111101");
         next_estado<="011";
         when "011" =>
         digctrl<="11101111";
-        display <="1011011";
+        display <=not("1011011");
         next_estado<="100";
         when "100" =>
         digctrl<="11110111";
-        display <="1111001"; 
+        display <=not("1111001"); 
         next_estado<="000";
         when others =>
         next_estado<="000";
@@ -78,11 +78,11 @@ if rising_edge(clk) then
     case estado_display is
         when "000" =>
         digctrl<="01111111";
-        display<=in_display1_t;
+        display<=not(in_display1_t);
         next_estado<="001";
         when "001" =>
         digctrl<="10111111";
-        display<=in_display2_t;
+        display<=not(in_display2_t);
         next_estado<="000";
         when others=>
         next_estado<="000";
@@ -94,11 +94,11 @@ if rising_edge(clk) then
        case estado_display is
         when "000" =>
         digctrl<="01111111";
-        display<=in_display1_cafe;
+        display<=not(in_display1_cafe);
         next_estado<="001";
         when "001" =>
         digctrl<="10111111";
-        display<=in_display2_cafe;
+        display<=not(in_display2_cafe);
         next_estado<="000";
         when others=>
         next_estado<="000";

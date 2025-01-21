@@ -10,11 +10,13 @@ generic(
         width:positive:=6
         );
  Port(
+    final_tiempo : out std_logic;
     digctrl  : out std_logic_vector(7 downto 0);
     CLK      : in  std_logic;
     boton_corto : in std_logic;
     boton_largo : in std_logic;
     boton_personalizar : in std_logic;
+    boton_confirmar : in std_logic;
     boton_no : in std_logic;
     sw_encendido : in std_logic;
     RST : in std_logic;
@@ -74,6 +76,7 @@ COMPONENT temporizador
     END COMPONENT;
 COMPONENT Display_pregunta
        PORT (
+           in_clk : in std_logic;
            digctrl  : out std_logic_vector(7 downto 0);
            in_display1_cafe : in std_logic_vector(width downto 0);
            in_display2_cafe : in std_logic_vector(width downto 0);
@@ -89,11 +92,12 @@ COMPONENT Display_pregunta
     END COMPONENT;
 COMPONENT Maquina_estados
        PORT (
-        start_count : buffer std_logic;
-        tiempo_acabado       : in STD_LOGIC;
+        start_count         : out std_logic;
+        tiempo_acabado      : in STD_LOGIC;
         boton_corto         : in  STD_LOGIC;    -- Señal del botón para café corto
         boton_largo         : in  STD_LOGIC;    -- Señal del botón para café largo
         boton_personalizar  : in  STD_LOGIC;    -- Señal pdel botón para personalizar tiempo
+        boton_confirmar  : in  STD_LOGIC;    -- Señal pdel botón para personalizar tiempo
         boton_no            : in  STD_LOGIC;    -- Señal para decir que no (debe ser un boton)
         boton_encendido     : in  STD_LOGIC;    -- Señal para encender/apagar la cafetera
         clk                 : in  STD_LOGIC;    -- Señal de reloj
@@ -116,7 +120,7 @@ begin
         display1 => s_display1_cafe,
         display2 => s_display2_cafe,
         Habilitar_T => modo_cafe, 
---        final_tiempo=>led_fin_tiempo,
+        final_tiempo=>fin_tiempo,
         Pause => RST
     );
     Inst_sync_boton_no: SYNCHRNZR 
@@ -126,6 +130,18 @@ begin
         SYNC_OUT =>sync_boton_no
     );
     Inst_edge_boton_no: EDGEDTCTR 
+    PORT MAP (
+        CLK =>clk,
+        SYNC_IN =>sync_boton_no,
+        EDGE =>s_boton_no
+    );
+    Inst_sync_boton_confirmar: SYNCHRNZR 
+    PORT MAP (
+        CLK =>clk,
+        ASYNC_IN =>boton_no,
+        SYNC_OUT =>sync_boton_no
+    );
+    Inst_edge_boton_confirmar: EDGEDTCTR 
     PORT MAP (
         CLK =>clk,
         SYNC_IN =>sync_boton_no,
@@ -169,6 +185,7 @@ begin
     );
    Inst_display_pregunta: Display_pregunta 
     PORT MAP (
+        in_clk => clk,
         digctrl=>digctrl,
         in_display1_cafe =>s_display1_cafe,
         in_display2_cafe  =>s_display2_cafe,
@@ -186,11 +203,11 @@ Inst_estados: Maquina_estados
         start_count =>start_temp,
         leds =>leds,
         tiempo_acabado=> fin_tiempo,
-        boton_corto  => s_boton_corto,
-        boton_largo => s_boton_largo,    -- Señal del botón para café largo
-        boton_personalizar  =>s_boton_personalizar,   -- Señal pdel botón para personalizar tiempo
-        --boton_confirmar =>boton_confirmar,    -- Señal para confirmar (debe ser un boton)
-        boton_no => s_boton_no,    -- Señal para decir que no (debe ser un boton)
+        boton_corto  => boton_corto,
+        boton_largo => boton_largo,    -- Señal del botón para café largo
+        boton_personalizar  =>boton_personalizar,   -- Señal pdel botón para personalizar tiempo
+        boton_confirmar =>boton_confirmar,    -- Señal para confirmar (debe ser un boton)
+        boton_no => boton_no,    -- Señal para decir que no (debe ser un boton)
         boton_encendido  => sw_encendido,   -- Señal para encender/apagar la cafetera
         clk  =>CLK,    -- Señal de reloj
         reset => RST,    -- Señal de reinicio
@@ -200,5 +217,5 @@ Inst_estados: Maquina_estados
         display1=>s_display1_t,
         display2=>s_display2_t
     );
-    
+    final_tiempo <= fin_tiempo;
 end Behavioral;

@@ -75,8 +75,8 @@ Inst_clk1hz: clk1hz
             end if;
         end if;
         
-        display1 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
-        display2 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
+        display2 <= std_logic_vector(to_unsigned(unit_sec,display1'length));
+        display1 <= std_logic_vector(to_unsigned(dec_sec,display2'length));
         if Habilitar_T="10" or Habilitar_T="11" then
             final_tiempo<=final;
         end if;

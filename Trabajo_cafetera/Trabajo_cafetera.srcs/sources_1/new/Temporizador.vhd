@@ -68,12 +68,7 @@ Inst_clk1hz: clk1hz
             elsif unit_sec=0 then
                 final<='0';
                 unit_sec:=9;
-                if dec_sec=0 then
-                    dec_sec:=5;
-                    
-                else
-                    dec_sec:=dec_sec-1;
-                end if;
+                dec_sec:=dec_sec-1;
             else 
                 final<='0';
                 unit_sec:=unit_sec-1;

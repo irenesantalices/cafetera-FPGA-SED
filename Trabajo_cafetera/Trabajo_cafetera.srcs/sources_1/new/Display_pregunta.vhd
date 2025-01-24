@@ -8,6 +8,7 @@ generic(
         width:positive:=6
         );
   Port ( 
+    personalizar : in std_logic;
     in_clk : in std_logic;
     in_display1_cafe : in std_logic_vector(width downto 0);
     in_display2_cafe : in std_logic_vector(width downto 0);
@@ -73,7 +74,7 @@ if rising_edge(clk) then
         when others =>
         next_estado<="000";
         end case;
-    elsif tiempo_elegido='0' then
+    elsif tiempo_elegido='0' and personalizar ='1' then
     estado_display<=next_estado;
     case estado_display is
         when "000" =>

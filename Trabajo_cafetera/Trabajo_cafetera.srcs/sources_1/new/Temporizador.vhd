@@ -62,7 +62,7 @@ Inst_clk1hz: clk1hz
     variable unit_sec : V :=int/10;
     variable dec_sec  : V :=int mod 10;
     begin
-    if Habilitar_t = "00" or Habilitar_T = "01" or start ='0' then
+    if Habilitar_T = "00" or Habilitar_T = "01" or start ='0' then
         final_tiempo<='0';
     end if;
     if rising_edge(clk) and start='1' then

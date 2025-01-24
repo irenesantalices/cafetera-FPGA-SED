@@ -34,7 +34,7 @@ generic(
 end Maquina_estados;
 
 architecture Behavioral of Maquina_estados is
-type STATES is (Apagada,Seleccion_tipo_cafe, cafe_leche, cafe_solo);
+type STATES is (Apagada,Seleccion_leche, cafe, leche);
 signal current_state: STATES := Apagada;
 --signal next_state: STATES;
 --signal cafetera : STD_LOGIC_VECTOR(1 downto 0) := "00"; -- Estado interno de la cafetera
@@ -90,17 +90,19 @@ nextstate_decod: process (boton_encendido, current_state,clk)
     tiempo_cafe<=(others=>'0');
    -- tiempo_leche<=(others=>'0');
     if boton_encendido = '1' then
-        current_state <= cafe_solo;
+        current_state <= cafe;
     end if;
-    when cafe_solo =>
+    when cafe =>
     leds<="010";
     modo_cafe <="10";
-    if boton_encendido = '0' then
+    if boton_encendido = '0' or reset = '1' then
         current_state <= Apagada;
+        tiempo_cafe <= "000000";
     else
     
     if tiempo_elegido='0' then
         --tiempo_leche <= (others=>'0');
+        tiempo_cafe<="000000";
         if personalizar = '1' then
             leds<="101";
             INICIO <= '1';
@@ -110,6 +112,8 @@ nextstate_decod: process (boton_encendido, current_state,clk)
                 personalizar<='0';
                 tiempo_elegido<='1';
                 start_count <= '1';
+            else 
+                start_count <='0';
             end if;
             INICIO <= '0';
         elsif boton_corto = '1' then
@@ -130,30 +134,32 @@ nextstate_decod: process (boton_encendido, current_state,clk)
     if  tiempo_acabado='1' then
     start_count <= '0';
     tiempo_elegido <= '0';
-    current_state<=Seleccion_tipo_cafe;
+    current_state<=Seleccion_leche;
     end if;
- when Seleccion_tipo_cafe =>
+ when Seleccion_leche =>
     leds<="011";
     modo_cafe <= "01";
-    if boton_encendido = '0' then
+    if boton_encendido = '0' or reset = '1' then
         current_state <= Apagada;
+        tiempo_cafe <= "000000";
     else
         --Se activa el display con leche
         
         --if boton_confirmar = '1' then
         if boton_confirmar = '1' then
-            current_state <= cafe_leche;
+            current_state <= leche;
             leds<="100";
         elsif boton_no='1'  then
             current_state <= Apagada;
             leds<="101";
         end if;
     end if;
- when cafe_leche =>
+ when leche =>
     leds<="100";
         modo_cafe <= "11";
- if boton_encendido = '0' then
+if boton_encendido = '0' or reset = '1' then
         current_state <= Apagada;
+        tiempo_cafe <= "000000";
  else 
     if tiempo_elegido='0' then
     if personalizar = '1' then
@@ -192,6 +198,7 @@ nextstate_decod: process (boton_encendido, current_state,clk)
  when others =>
  current_state <= Apagada;
  end case;
+
 
 --modo_cafe <=cafetera;
 elegido_tiempo<=tiempo_elegido;

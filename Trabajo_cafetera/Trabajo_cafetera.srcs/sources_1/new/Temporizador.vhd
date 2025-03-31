@@ -79,7 +79,7 @@ begin
 
         elsif Pause='1' then
             Start_i<='0';
-        elsif (Habilitar_T = "11" or Habilitar_T="10")and start = '1'  then
+        elsif start = '1'  then
             Start_i<='1';
 
         end if;
@@ -97,7 +97,7 @@ begin
 
         if rising_edge(clk) and Start_i='1' then
             if inicializado = '0' and tiempo_in /="000000" then
-                int := to_integer(unsigned(tiempo_in))+1;
+                int := to_integer(unsigned(tiempo_in));
                 dec_sec := int/10;
                 unit_sec := int mod 10;
                 inicializado := '1';
@@ -109,11 +109,9 @@ begin
                 final_tiempo <='1';
                 inicializado :='0';
             elsif unit_sec=0 then
-                final_tiempo<='0';
                 unit_sec:=9;
                 dec_sec:=dec_sec-1;
             else
-                final_tiempo<='0';
                 unit_sec:=unit_sec-1;
             end if;
             unidades <= std_logic_vector(to_unsigned(unit_sec,4));

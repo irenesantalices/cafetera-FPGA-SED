@@ -101,13 +101,16 @@ begin
                 dec_sec := int/10;
                 unit_sec := int mod 10;
                 inicializado := '1';
+                final_tiempo <='0';
             end if;
             if Habilitar_t = "00" or tiempo_in = "000000" then
                 final_tiempo<='0';
                 
             elsif unit_sec=0 and dec_sec=0 then
                 final_tiempo <='1';
-                inicializado :='0';
+                if start = '1' then
+                    inicializado :='0';
+                end if;
             elsif unit_sec=0 then
                 unit_sec:=9;
                 dec_sec:=dec_sec-1;

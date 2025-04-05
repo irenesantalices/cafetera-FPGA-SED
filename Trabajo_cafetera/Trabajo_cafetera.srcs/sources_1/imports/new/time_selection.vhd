@@ -7,10 +7,10 @@ entity time_selection is
     port( 
    
    -- RST_N 	: in std_logic;									-- Reset
-    INICIO  : in std_logic;
-    CLK	    : in std_logic;									-- Clock
-    SUM     : in std_logic;                                 -- Aumenta el valor del tiempo en uno
-    LESS    : in std_logic;                                 -- Disminuye el valor del tiempo en uno
+    INICIO  : in std_logic:='0';
+    CLK	    : in std_logic:='0';									-- Clock
+    SUM     : in std_logic:='0';                                 -- Aumenta el valor del tiempo en uno
+    LESS    : in std_logic:='0';                                 -- Disminuye el valor del tiempo en uno
     code	: out std_logic_vector( 5 downto 0); 			-- El valor máximo que puede contar es 60 que son 6 bits
     display1 : out std_logic_vector(6 downto 0);	
     display2 : out std_logic_vector(6 downto 0)	
@@ -30,6 +30,9 @@ COMPONENT decoder
 	signal numero_dec : integer;
     signal dec : unsigned(3 downto 0);
 	signal unidades : unsigned(3 downto 0);
+	signal sum_prev :std_logic;
+	signal less_prev :std_logic;
+
 
 	
 begin
@@ -53,16 +56,18 @@ begin
 --            count_i <= (others => '0');
     if INICIO = '1' then
       	if rising_edge(CLK) then
-    	   if  SUM = '1' then --Check kclock active edge = CLK_N event and CLK_N = 0
+    	   if  SUM='1' and sum_prev='0' then --Check kclock active edge = CLK_N event and CLK_N = 0
                 if count_i < 61 then
                     count_i <= count_i + 1;
                 end if;
             end if;
-            if LESS = '1' then
+            if LESS='1' and less_prev='0' then
                 if count_i > 3 then
        		       count_i <= count_i -1;
        		    end if;
        		end if;
+       		sum_prev<=SUM;
+       		less_prev<=LESS;
         end if;
     numero_dec <= to_integer(count_i);
     dec <=to_unsigned(numero_dec/10,dec'length);

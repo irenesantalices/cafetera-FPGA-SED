@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity Maquina_estados is
     generic(
@@ -27,9 +28,10 @@ entity Maquina_estados is
         leds                : out std_logic_vector(3 downto 0);
 
         out_tiempo_acabado  :   out std_logic;
+        out_tiempo        : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
 
-        start_count : out std_logic
-        --        out_personalizar : out std_logic
+        start_count : out std_logic;
+        out_personalizar : out std_logic
 
 
 
@@ -58,28 +60,28 @@ architecture Behavioral of Maquina_estados is
 
 
 
-    --   COMPONENT time_selection
-    --       PORT (
-    --            INICIO 	: in std_logic;									
-    --            CLK	    : in std_logic;									-- Clock
-    --            SUM     : in std_logic;                                 -- Aumenta el valor del tiempo en uno
-    --            LESS    : in std_logic;                                 -- Disminuye el valor del tiempo en uno
-    --            code	: out std_logic_vector( tiempo-1 downto 0);
-    --            display1 : out std_logic_vector(6 downto 0);	
-    --            display2 : out std_logic_vector(6 downto 0)	
-    --            );
-    --    END COMPONENT;
+    COMPONENT time_selection
+        PORT (
+            clk       : in  std_logic;
+            reset     : in  std_logic;
+            inicio    : in  std_logic;
+            aumentar  : in  std_logic;
+            disminuir : in  std_logic;
+            salida    : out std_logic_vector(5 downto 0)
+        );
+    END COMPONENT;
 begin
-    --Inst_time_selection: time_selection 
-    --    PORT MAP (
-    --        CLK => CLK,
-    --        INICIO => INICIO,
-    --        SUM => boton_largo,     --usamos el boton de cafe largo para sumar 
-    --        LESS => boton_corto,    -- y el de cafe corto para restar
-    --        code =>tiempo_personalizado,
-    --        display1=>display1,
-    --        display2=>display2
-    --    );
+    Inst_time_selection: time_selection
+        PORT MAP (
+            CLK => CLK,
+            reset=>reset,
+            INICIO => INICIO,
+            aumentar => boton_largo,     --usamos el boton de cafe largo para sumar 
+            disminuir => boton_corto,    -- y el de cafe corto para restar
+            salida =>tiempo_personalizado
+            --            display1=>display1,
+            --            display2=>display2
+        );
 
     nextstate_decod: process (boton_encendido, current_state,clk)
     begin
@@ -107,22 +109,36 @@ begin
                         tiempo_cafe <= "000000";
 
                     elsif tiempo_elegido='0' then
+                       -- s_tiempo_acabado <='0';
                         --tiempo_leche <= (others=>'0');
                         tiempo_cafe<="000000";
-                        --        if personalizar = '1' then
-                        --            leds<="101";
-                        --            INICIO <= '1';
-                        --            --if boton_confirmar = '1' then
-                        --            if boton_confirmar='1' then 
-                        --                tiempo_cafe <= tiempo_personalizado;
-                        --                personalizar<='0';
-                        --                tiempo_elegido<='1';
-                        --                start_count <= '1';
-                        --            else 
-                        --                start_count <='0';
-                        --            end if;
-                        --            INICIO <= '0';
-                        if boton_corto = '1' then
+                        --                        if personalizar = '1' then
+                        --                                    leds<="1000";
+                        --                                    inicio <= '1';
+                        --                                    --if boton_confirmar = '1' then
+                        --                                    if boton_confirmar='1' then 
+                        --                                        tiempo_cafe <= tiempo_personalizado;
+                        --                                        personalizar<='0';
+                        --                                        tiempo_elegido<='1';
+                        --                                        start_count <= '1';
+                        --                                        leds<="0000";
+
+                        --                                    else 
+                        --                                        start_count <='0';
+                        --                                    end if;
+                        --                                    inicio <= '0';
+                        if personalizar = '1' then
+                            leds <= "1000";
+
+                            if boton_confirmar= '1' then
+                                tiempo_cafe <= tiempo_personalizado;
+                                personalizar <= '0';
+                                tiempo_elegido <= '1';
+                                start_count <= '1';
+                                INICIO <= '0';
+                                leds <= "0000";
+                            end if;
+                        elsif boton_corto = '1' then
                             leds<="1101";
                             tiempo_cafe <= tiempo_corto;
                             tiempo_elegido<='1';
@@ -134,11 +150,10 @@ begin
                             start_count <= '1';
                         end if;
                     else
-                        s_tiempo_acabado <=tiempo_acabado;
                         out_tiempo_acabado <=tiempo_acabado;
 
                         -- Hay que arreglar que pueda saltar antes de que termine el tiempo
-                        if  tiempo_acabado='1' then
+                        if  tiempo_acabado='1' and tiempo_elegido='1' then
                             s_tiempo_acabado <='0';
                             start_count <= '0';
                             tiempo_elegido <= '0';
@@ -146,6 +161,7 @@ begin
                         end if;
                     end if;
                 when Seleccion_leche =>
+                
                     s_tiempo_acabado <='0';
                     out_tiempo_acabado <= '0';
                     leds<="0011";
@@ -172,19 +188,19 @@ begin
                         current_state <= Apagada;
                         tiempo_cafe <= "000000";
                     elsif tiempo_elegido='0' then
-                        --    if personalizar = '1' then
-                        --        leds <= "101";
-                        --        INICIO <= '1';
-                        --       -- tiempo_leche <= tiempo_personalizado;
-                        --        if  boton_confirmar = '1'  then 
-                        --            tiempo_cafe <= tiempo_personalizado;
-                        --            personalizar<='0';
-                        --            tiempo_elegido<='1'; 
-                        --            start_count <= '1';
-                        --        end if;      
-                        --        INICIO <= '0';
+                        if personalizar = '1' then
+                            leds <= "1010";
+                            inicio <= '1';
+                            -- tiempo_leche <= tiempo_personalizado;
+                            if  boton_confirmar = '1'  then
+                                tiempo_cafe <= tiempo_personalizado;
+                                personalizar<='0';
+                                tiempo_elegido<='1';
+                                start_count <= '1';
+                            end if;
+                            inicio <= '0';
 
-                        if boton_corto = '1' then
+                        elsif boton_corto = '1' then
                             leds <= "1011";
                             -- tiempo_leche <= tiempo_corto;
                             tiempo_cafe <= tiempo_corto;
@@ -214,6 +230,9 @@ begin
             --modo_cafe <=cafetera;
             elegido_tiempo<=tiempo_elegido;
         end if;
+
     end process;
-    -- out_personalizar <= personalizar;
+    out_personalizar <= personalizar;
+    out_tiempo <= tiempo_personalizado;
+
 end Behavioral;

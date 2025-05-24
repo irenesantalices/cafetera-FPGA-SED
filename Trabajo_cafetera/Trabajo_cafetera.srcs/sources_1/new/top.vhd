@@ -23,6 +23,9 @@ generic(
     RST : in std_logic;
 --    led_fin_tiempo :out std_logic;
     leds :out std_logic_vector(3 downto 0);
+   out_personalizar: out std_logic;
+   tiempo_out : out std_logic_vector(tiempo-1 downto 0);
+
     
     display : out std_logic_vector(width downto 0)
  );
@@ -45,7 +48,6 @@ signal sync_boton_largo : std_logic;
 signal sync_boton_confirmar : std_logic;
 signal s_boton_confirmar : std_logic;
 signal s_boton_largo : std_logic;
-signal out_personalizar :std_logic;
 
 signal s_display1_cafe : std_logic_vector(width downto 0);
 signal s_display2_cafe : std_logic_vector(width downto 0);
@@ -117,7 +119,10 @@ COMPONENT Maquina_estados
         reset               : in  STD_LOGIC;    -- Señal de reinicio
         modo_cafe           : out STD_LOGIC_VECTOR(1 downto 0); -- Modo: 00 = apagado, 01 = eligiendo, 10 = elegir tiempo, 11 = temporizador
         tiempo_cafe         : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
+                out_tiempo        : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
+
 --        tiempo_leche        : out STD_LOGIC_VECTOR(tiempo-1 downto 0);
+        out_personalizar : out std_logic;
         leds                : out std_logic_vector(3 downto 0)
        -- display1            : out std_logic_vector(6 downto 0);	
         --display2            : out std_logic_vector(6 downto 0)	
@@ -227,12 +232,14 @@ Inst_estados: Maquina_estados
         clk  =>CLK,    -- Señal de reloj
         reset => RST,    -- Señal de reinicio
         modo_cafe =>modo_cafe, -- Modo: 00 = apagado, 01 = eligiendo, 10 = solo, 11 = con leche
-        tiempo_cafe => tiempo_c
-       -- out_personalizar => out_personalizar,
+        tiempo_cafe => tiempo_c,
+        out_tiempo => tiempo_out,
+        out_personalizar => out_personalizar
 --        tiempo_leche =>tiempo_l,
       --  display1=>s_display1_t,
        -- display2=>s_display2_t
     );
   -- final_tiempo <= fin_tiempo;
   -- start_tiempo <= start_temp;
+  --tiempo_out <=tiempo_c;
 end Behavioral;

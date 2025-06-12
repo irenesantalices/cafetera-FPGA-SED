@@ -15,24 +15,21 @@ entity Temporizador is
         start : in std_logic;
         CLK : in std_logic;
         tiempo_in : in std_logic_vector(tiempo-1 downto 0);
-        Habilitar_T : in std_logic_vector(1 downto 0);
-        Pause : in std_logic;
+        Reset : in std_logic;
         display1 : out std_logic_vector(width downto 0);
         display2 : out std_logic_vector(width downto 0);
         code_unit : out std_logic_vector(3 downto 0);
         code_dec : out std_logic_vector(3 downto 0);
+        contando : out std_logic:='0';
         final_tiempo : out std_logic:='0'
 
     );
 end Temporizador;
 
 architecture Behavioral of Temporizador is
-    signal Start_i : std_logic :='0';
     signal final   : std_logic :='0';
     signal s_tiempo :std_logic_vector(tiempo-1 downto 0);
     signal clk_1hz : std_logic;
-    -- signal dec_sec : std_logic_vector(3 downto 0);
-    -- signal unit_sec : std_logic_vector(3 downto 0);
     signal s_dec : std_logic_vector(3 downto 0):="0000";
     signal s_unit : std_logic_vector(3 downto 0):="0000";
 
@@ -72,21 +69,9 @@ begin
     --        unit_bcd => unit_sec
     --    );
 
-    ME : process (Habilitar_T,Pause)
-    begin
-        if Habilitar_t = "00"  then
-            Start_i<='0';
 
-        elsif Pause='1' then
-            Start_i<='0';
-        elsif start = '1'  then
-            Start_i<='1';
 
-        end if;
-
-    end process;
-
-    process (clk, Start_i)
+    process (clk_1hz, start)
 
         --  subtype V is integer range 0 to 60;
         variable int :natural  :=to_integer(unsigned(tiempo_in));
@@ -94,29 +79,39 @@ begin
         variable unit_sec  : natural :=int mod 10;
         variable inicializado : std_logic :='0';
     begin
+        if start='0' then
+            final_tiempo<='0';
+        end if;
+        if tiempo_in="000000" then
+            contando<='0';
+            final_tiempo<='0';
+            inicializado:='0';
+        elsif inicializado = '0' then
+            contando <='0';
+            int := to_integer(unsigned(tiempo_in));
+            dec_sec :=int/10;
+            unit_sec := int mod 10;
+            inicializado := '1';
+            final_tiempo <='0';
+        end if;
+        if rising_edge(clk_1hz) and start='1' then
 
-        if rising_edge(clk) and Start_i='1' then
-            if inicializado = '0' and tiempo_in /="000000" then
-                int := to_integer(unsigned(tiempo_in));
-                dec_sec := int/10;
-                unit_sec := int mod 10;
-                inicializado := '1';
-                final_tiempo <='0';
-            end if;
-            if Habilitar_t = "00" or tiempo_in = "000000" then
-                final_tiempo<='0';
 
-            elsif unit_sec=0 and dec_sec=0 then
-                final_tiempo <='1';
+            if unit_sec=0 and dec_sec=0 then
+                contando <='0';
+                inicializado :='0';
+
                 if start = '1' then
-                    inicializado :='0';
+                    final_tiempo <='1';
                 end if;
             elsif unit_sec=0 then
+                contando <='1';
                 unit_sec:=9;
                 dec_sec:=dec_sec-1;
                 final_tiempo<='0';
 
             else
+                contando <='1';
                 final_tiempo<='0';
                 unit_sec:=unit_sec-1;
             end if;
@@ -128,8 +123,13 @@ begin
         code_dec<=s_dec;
         code_unit<=s_unit;
         inicial <= inicializado;
-
-
+        if tiempo_in="000000" then
+            contando<='0';
+            final_tiempo<='0';
+            inicializado:='0';
+         end if;
     end process;
 
 end Behavioral;
+
+

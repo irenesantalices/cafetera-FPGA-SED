@@ -3,8 +3,8 @@ use IEEE.STD_LOGIC_1164.ALL;
  
 entity clk70Hz is
 generic(
-        div:positive:=1428571
-        
+        --div:positive:=1428571
+        div:positive:=94286
         );
 
     Port (
